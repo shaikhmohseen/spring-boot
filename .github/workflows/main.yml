@@ -2,8 +2,12 @@ name: Deploy
 
 on:
   push:
+    paths-ignore:
+     - 'image-version.txt'
     branches: [ "main" ]
   pull_request:
+    paths-ignore:
+     - 'image-version.txt'
     branches: [ "main" ]
     
 # env:
