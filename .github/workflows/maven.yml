@@ -15,7 +15,7 @@ on:
     branches: [ "main" ]
     
 env:
-  AWS_REGION: ${{ secrets.AWS_ACCESS_KEY_ID }}                 
+  AWS_REGION: ${{ secrets.AWS_REGION }}                 
   ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}          
 #   ECS_SERVICE: ${{ secrets.AWS_ECS_SERVICE }}             
 #   ECS_CLUSTER: ${{ secrets.AWS_ECS_CLUSTER }}             
@@ -59,8 +59,11 @@ jobs:
       run: |
         # Build a docker container and
         docker build -t hello-world-spring-boot:$IMAGE_TAG .
-        sudo docker tag hello-world-spring-boot:$IMAGE_TAG 051723956460.dkr.ecr.us-east-1.amazonaws.com/springboot:latest
+        docker tag hello-world-spring-boot:$IMAGE_TAG $ECR_REGISTRY:$IMAGE_TAG
+        docker push $ECR_REGISTRY:$IMAGE_TAG
         echo $IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        echo $GITHUB_OUTPUT
 
 
       
