@@ -29,4 +29,14 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn clean install
+      
+
+    - name: Build docker image
+      id: build-image
+      run: |
+        # Build a docker container and
+        docker build -t hello-world-spring-boot:latest . 
+
+
+      
 
