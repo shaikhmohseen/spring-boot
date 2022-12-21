@@ -17,10 +17,9 @@ on:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}                 
   ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}          
-#   ECS_SERVICE: ${{ secrets.AWS_ECS_SERVICE }}             
-#   ECS_CLUSTER: ${{ secrets.AWS_ECS_CLUSTER }}             
-#   ECS_TASK_DEFINITION: ${{ secrets.AWS_ECS_TASK_DEFINITION }} 
-#   CONTAINER_NAME:  ${{ secrets.AWS_CONTAINER_NAME }}        
+  ECS_SERVICE: ${{ secrets.AWS_ECS_SERVICE }}             
+  ECS_CLUSTER: ${{ secrets.AWS_ECS_CLUSTER }}             
+  CONTAINER_NAME:  ${{ secrets.AWS_CONTAINER_NAME }}        
 
 jobs:
   build:
@@ -66,6 +65,27 @@ jobs:
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
         echo $GITHUB_OUTPUT
 
+
+    - name: Download task definition
+      run: |
+        aws ecs describe-task-definition --task-definition ${{ secrets.ECS_CONTAINER_DEFINITION }} \
+        --query taskDefinition > task-definition.json
+
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task-definition.json
+        container-name: ${{ env.CONTAINER_NAME }}
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
 
       
 
