@@ -13,6 +13,14 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    
+env:
+  AWS_REGION: ${{ secrets.AWS_ACCESS_KEY_ID }}                 
+  ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}          
+#   ECS_SERVICE: ${{ secrets.AWS_ECS_SERVICE }}             
+#   ECS_CLUSTER: ${{ secrets.AWS_ECS_CLUSTER }}             
+#   ECS_TASK_DEFINITION: ${{ secrets.AWS_ECS_TASK_DEFINITION }} 
+#   CONTAINER_NAME:  ${{ secrets.AWS_CONTAINER_NAME }}        
 
 jobs:
   build:
@@ -27,10 +35,21 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}    
+    
     - name: Build with Maven
       run: mvn clean install
-      
 
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    
     - name: Build docker image
       id: build-image
       env:
@@ -39,7 +58,8 @@ jobs:
 
       run: |
         # Build a docker container and
-        docker build -t hello-world-spring-boot:latest . 
+        docker build -t hello-world-spring-boot:$IMAGE_TAG .
+        sudo docker tag hello-world-spring-boot:$IMAGE_TAG 051723956460.dkr.ecr.us-east-1.amazonaws.com/springboot:latest
         echo $IMAGE_TAG
 
 
