@@ -33,9 +33,14 @@ jobs:
 
     - name: Build docker image
       id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+
       run: |
         # Build a docker container and
         docker build -t hello-world-spring-boot:latest . 
+        echo $IMAGE_TAG
 
 
       
