@@ -80,6 +80,6 @@ jobs:
 #        wait-for-service-stability: true
 
     - name: Deploy Amazon ECS task def
-      run: echo ${{ steps.task-def.outputs.task-definition }}
-
-#bash ./deploy-ecs-task-defination.sh ${{ env.ECS_CLUSTER }} ${{ env.ECS_SERVICE }} ${{ steps.task-def.outputs.task-definition }}
+      run: |
+        echo ${{ steps.task-def.outputs.task-definition }}
+        bash ./deploy-ecs-task-defination.sh ${{ env.ECS_CLUSTER }} ${{ env.ECS_SERVICE }} ${{ steps.task-def.outputs.task-definition }}
